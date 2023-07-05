@@ -26,8 +26,7 @@ repo:
 docker run -it --user $(id -u):$(id -g) -v ~/pdf:/usr/pdf jmaslak/format-scan-pdf in.pdf out.pdf
 ```
 
-This will download the image from Docker Hub (today images only exist
-for `Linux/amd64`).
+This will download the image from Docker Hub.
 
 The `~/pdf` directory must already exist (you can name it something
 else, but whatever it is called, it needs to be passed to the Docker
