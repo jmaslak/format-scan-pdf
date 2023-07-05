@@ -6,7 +6,7 @@
 #
 
 doit() {
-    docker build -t format-scan-pdf .
+    docker build -t jmaslak/format-scan-pdf .
 }
 
 doit "$@"
