@@ -18,22 +18,16 @@ This docker image has many dependencies, see the format-scan-pdf.py file
 which lists them.  Normal users will not need to concern themselves with
 these dependencies, as they will be part of the image.
 
-# Prerequisites
-
-You will need Docker installed and working, and your user able to start
-Docker images.  Normally, this requires your user in the `docker` group.
-
-# Building
-
-The `build.sh` will create a local docker image based on the included
-`Dockerfile`.
-
 # Executing
 
-Something along the lines of:
+Something along the lines of, without installing anything from this
+repo:
 ```
-docker run -it --user $(id -u):$(id -g) -v ~/pdf:/usr/pdf format-scan-pdf in.pdf out.pdf
+docker run -it --user $(id -u):$(id -g) -v ~/pdf:/usr/pdf jmaslak/format-scan-pdf in.pdf out.pdf
 ```
+
+This will download the image from Docker Hub (today images only exist
+for `Linux/amd64`).
 
 The `~/pdf` directory must already exist (you can name it something
 else, but whatever it is called, it needs to be passed to the Docker
@@ -44,5 +38,19 @@ This directory will be where your input and output files are written.
 If you want to use the standard `~/pdf` directory, you can use the
 `format-scan-pdf.sh` script to execute Docker.  Just pass it the
 filenames (relative to the `~/pdf` directory) of the input and output
-PDF filenames.
+PDF filenames.  It will download the Docker Hub image as needed.
+
+# Prerequisites
+
+You will need Docker installed and working, and your user able to start
+Docker images.  Normally, this requires your user in the `docker` group.
+
+# Building
+
+The `build.sh` will create a local docker image based on the included
+`Dockerfile`.
+
+Note that the `format-pdf-scan.sh` script will reference
+`jmaslak/format-pdf-scan.sh` and thus probably shouldn't be used for
+local development!
 
