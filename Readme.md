@@ -1,0 +1,48 @@
+# What this program does
+
+This is a Linux console (terminal) application.
+
+This Docker image is a text mode console application that will, through
+menus, allow you to "fix" broken PDF files.  By broken, I mean files
+that may have quality issues (but are valid PDFs).  For instance, the
+file may need the pages rotated, pages split into two pages (I.E. two
+pages of a book scanned into one page of a PDF), first and/or last pages
+removed from the PDF, pages "de-skewed" (I.E. text is at an angle that
+isn't a proper 90 degrees), and may need OCR (optical character
+recognition, to allow copy/highlighting/search) added.
+
+This is intended to be used on scanned images of printed text. Using it
+on anything else may give surprising and/or incorrect output.
+
+This docker image has many dependencies, see the format-scan-pdf.py file
+which lists them.  Normal users will not need to concern themselves with
+these dependencies, as they will be part of the image.
+
+# Prerequisites
+
+You will need Docker installed and working, and your user able to start
+Docker images.  Normally, this requires your user in the `docker` group.
+
+# Building
+
+The `build.sh` will create a local docker image based on the included
+`Dockerfile`.
+
+# Executing
+
+Something along the lines of:
+```
+docker run -it --user $(id -u):$(id -g) -v ~/pdf:/usr/pdf format-scan-pdf in.pdf out.pdf
+```
+
+The `~/pdf` directory must already exist (you can name it something
+else, but whatever it is called, it needs to be passed to the Docker
+run command and it will be shared with the Docker image.  Files read and
+written will be read and written as your user ID and primary group ID.
+This directory will be where your input and output files are written.
+
+If you want to use the standard `~/pdf` directory, you can use the
+`format-scan-pdf.sh` script to execute Docker.  Just pass it the
+filenames (relative to the `~/pdf` directory) of the input and output
+PDF filenames.
+
