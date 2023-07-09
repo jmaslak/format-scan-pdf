@@ -135,6 +135,34 @@ def remove_pages(fn_in, fn_out):
         subprocess.check_call(["pdftk", fn_in, "cat", choice, "output", fn_out])
 
 
+def crop(fn_in, fn_out, tmpdir):
+    """Prompt user to remove some right margin."""
+    choice = radiolist_dialog(
+        title="Remove Right Margin",
+        text="Do you want to remove some right margin from the document?\n(note this causes loss of everything but the image of te PDF)",
+        values=[
+            ("no", "No"),
+            ("10", "Remove right 10%"),
+            ("20", "Remove right 20%"),
+        ],
+    ).run()
+
+    if choice is None:
+        print("Exiting without changes.")
+        sys.exit()
+    elif choice == "no":
+        shutil.copy(fn_in, fn_out)
+    else:
+        base = os.path.join(tmpdir, "images")
+        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+        if choice == "10":
+            keep="90"
+        else:
+            keep="80"
+        subprocess.check_call(["parallel gm convert {} -crop " + keep + "%x100% {}.new.jpg ::: " + f"{base}-*[0-9].jpg"], shell=True)
+        subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
+
+
 def deskew(fn_in, fn_out, tmpdir):
     """Prompt user to determine if they want deskewing and, if so, deskew it."""
     choice = radiolist_dialog(
@@ -157,10 +185,10 @@ def deskew(fn_in, fn_out, tmpdir):
         base = os.path.join(tmpdir, "images")
         subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
         if choice == "standard":
-            subprocess.check_call(["parallel deskew -m 100 -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
+            subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
         else:
             margins = f"{choice},{choice},{choice},{choice}"
-            subprocess.check_call(["parallel deskew -m 100 -r " + margins + " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
+            subprocess.check_call(["parallel deskew -b ffffff -m 100 -r " + margins + " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
         subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
 
 
@@ -203,6 +231,9 @@ def main():
 
     rotate(fn_tmp1, fn_tmp2)
     shutil.copy(fn_tmp2, fn_tmp1)
+
+    crop(fn_tmp1, fn_tmp2, tmpdir.name)
+    subprocess.check_call(["pdftk", fn_tmp2, "cat", "output", fn_tmp1])
 
     split_pages(fn_tmp1, fn_tmp2, tmpdir.name)
     shutil.copy(fn_tmp2, fn_tmp1)
