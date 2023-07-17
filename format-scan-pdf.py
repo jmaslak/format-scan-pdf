@@ -29,7 +29,7 @@ import subprocess
 import sys
 import tempfile
 
-from prompt_toolkit.shortcuts import radiolist_dialog,yes_no_dialog
+from prompt_toolkit.shortcuts import radiolist_dialog, yes_no_dialog
 
 
 def parse_arguments():
@@ -139,7 +139,8 @@ def crop(fn_in, fn_out, tmpdir):
     """Prompt user to remove some right margin."""
     choice = radiolist_dialog(
         title="Remove Right Margin",
-        text="Do you want to remove some right margin from the document?\n(note this causes loss of everything but the image of te PDF)",
+        text="Do you want to remove some right margin from the document?\n" +
+             "(note this causes loss of everything but the image of te PDF)",
         values=[
             ("no", "No"),
             ("10", "Remove right 10%"),
@@ -156,10 +157,11 @@ def crop(fn_in, fn_out, tmpdir):
         base = os.path.join(tmpdir, "images")
         subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
         if choice == "10":
-            keep="90"
+            keep = "90"
         else:
-            keep="80"
-        subprocess.check_call(["parallel gm convert {} -crop " + keep + "%x100% {}.new.jpg ::: " + f"{base}-*[0-9].jpg"], shell=True)
+            keep = "80"
+        subprocess.check_call(["parallel gm convert {} -crop " + keep + "%x100% {}.new.jpg ::: " +
+                               f"{base}-*[0-9].jpg"], shell=True)
         subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
 
 
@@ -167,7 +169,8 @@ def deskew(fn_in, fn_out, tmpdir):
     """Prompt user to determine if they want deskewing and, if so, deskew it."""
     choice = radiolist_dialog(
         title="Deskew",
-        text="Do you want to deskew the document?\n(note this causes loss of everything but the image of te PDF)",
+        text="Do you want to deskew the document?\n" +
+             "(note this causes loss of everything but the image of te PDF)",
         values=[
             ("no", "No"),
             ("standard", "Standard Deskew"),
@@ -185,11 +188,41 @@ def deskew(fn_in, fn_out, tmpdir):
         base = os.path.join(tmpdir, "images")
         subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
         if choice == "standard":
-            subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
+            subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " +
+                                   f"{base}-*[0-9].jpg"], shell=True)
         else:
             margins = f"{choice},{choice},{choice},{choice}"
-            subprocess.check_call(["parallel deskew -b ffffff -m 100 -r " + margins + " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
+            subprocess.check_call(["parallel deskew -b ffffff -m 100 -r " + margins +
+                                   " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
         subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
+
+
+def remove_hidden(fn_in, fn_out, tmpdir):
+    """Prompt user to remove hidden layers, metadata, etc."""
+    choice = radiolist_dialog(
+        title="Deskew",
+        text="Do you want to remove/redact everything invisible from this file?\n\nNote:\n" +
+             "  - This will remove all text layers (OCR can re-add SOME of that).\n" +
+             "  - This functions by converting pages to images and back to PDF.\n" +
+             "  - You may still leak some data, such as the use of this tool.\n" +
+             "  - If you are doing something sensitive, verify this worked successfully!",
+        values=[
+            ("no", "No"),
+            ("yes", "Yes"),
+        ],
+    ).run()
+
+    if choice is None:
+        print("Exiting without changes.")
+        sys.exit()
+    elif choice == "no":
+        shutil.copy(fn_in, fn_out)
+        return False
+    else:
+        base = os.path.join(tmpdir, "images")
+        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+        subprocess.check_call([f"gm convert {base}-*.jpg {fn_out}"], shell=True)
+        return True
 
 
 def ocr(fn_in, fn_out):
@@ -216,6 +249,11 @@ def restore_metadata(fn_in, fn_out):
     subprocess.check_call(["exiftool", fn_out, f"-Title={title}", "-overwrite_original"])
 
 
+def remove_metadata(fn):
+    """Remove metadata in PDF file."""
+    subprocess.check_call(["exiftool", fn, "-all:all=", "-overwrite_original"])
+
+
 def main():
     """Main application function."""
     args = parse_arguments()
@@ -228,6 +266,9 @@ def main():
     fn_out = args.outfile
 
     shutil.copy(fn_in, fn_tmp1)
+
+    hide_metadata = remove_hidden(fn_tmp1, fn_tmp2, tmpdir.name)
+    shutil.copy(fn_tmp2, fn_tmp1)
 
     rotate(fn_tmp1, fn_tmp2)
     shutil.copy(fn_tmp2, fn_tmp1)
@@ -247,9 +288,11 @@ def main():
     ocr(fn_tmp1, fn_tmp2)
 
     shutil.copy(fn_tmp2, fn_out)
-    restore_metadata(fn_in, fn_out)
+    if hide_metadata:
+        remove_metadata(fn_out)
+    else:
+        restore_metadata(fn_in, fn_out)
 
 
 if __name__ == "__main__":
     main()
-
