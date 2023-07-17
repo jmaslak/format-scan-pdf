@@ -6,6 +6,7 @@
 #
 
 VERSION=v1.0.0
+
 doit() {
     if [ -f .version ] ; then
         if grep -E "^$VERSION\$" .version >/dev/null ; then
@@ -26,7 +27,10 @@ doit() {
     git tag $VERSION
     git push
 
-    docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --tag jmaslak/format-scan-pdf:latest,jmaslak/format-scan-pdf:$VERSION .
+    docker buildx build --push --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+        --tag jmaslak/format-scan-pdf:latest \
+        --tag jmaslak/format-scan-pdf:$VERSION \
+        .
 }
 
 doit "$@"
