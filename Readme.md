@@ -14,6 +14,12 @@ recognition, to allow copy/highlighting/search) added.
 This is intended to be used on scanned images of printed text. Using it
 on anything else may give surprising and/or incorrect output.
 
+It also has some basic redaction capability, where it will convert, if
+requested, the document to images and back to PDF, and remove many PDF
+tags from the output file. This is not industrial-grade redaction, but
+should help increase the chance that a PDF only contains what you want
+it to contain.
+
 This docker image has many dependencies, see the format-scan-pdf.py file
 which lists them.  Normal users will not need to concern themselves with
 these dependencies, as they will be part of the image.
