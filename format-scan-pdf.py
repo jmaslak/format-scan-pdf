@@ -19,6 +19,7 @@
 #   pdftk --> Available on Ubuntu in the pdftk package
 #   pdftoppm --> Available on Ubuntu in the poppler-utils package
 #   prompt_toolkit --> Available on Ubuntu in the python3-prompt-toolkit package
+#   qpdf - Available on Ubuntu in the qpdf package
 #
 
 import argparse
@@ -249,9 +250,10 @@ def restore_metadata(fn_in, fn_out):
     subprocess.check_call(["exiftool", fn_out, f"-Title={title}", "-overwrite_original"])
 
 
-def remove_metadata(fn):
+def remove_metadata(fn_in, fn_out):
     """Remove metadata in PDF file."""
-    subprocess.check_call(["exiftool", fn, "-all:all=", "-overwrite_original"])
+    subprocess.check_call(["exiftool", fn_in, "-all:all=", "-overwrite_original"])
+    subprocess.check_call(["qpdf", "--linearize", fn_in, fn_out])
 
 
 def main():
@@ -286,11 +288,12 @@ def main():
     shutil.copy(fn_tmp2, fn_tmp1)
 
     ocr(fn_tmp1, fn_tmp2)
+    shutil.copy(fn_tmp2, fn_tmp1)
 
-    shutil.copy(fn_tmp2, fn_out)
     if hide_metadata:
-        remove_metadata(fn_out)
+        remove_metadata(fn_tmp1, fn_out)
     else:
+        shutil.copy(fn_tmp1, fn_out)
         restore_metadata(fn_in, fn_out)
 
 

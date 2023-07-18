@@ -11,7 +11,8 @@ RUN apt-get update && \
         parallel \
         pdftk \
         poppler-utils \
-        python3-prompt-toolkit
+        python3-prompt-toolkit \
+        qpdf
         
 RUN mkdir -p /usr/src
 WORKDIR /usr/src

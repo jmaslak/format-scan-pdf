@@ -5,7 +5,7 @@
 # All Rights Reserved - See License
 #
 
-VERSION=v1.0.0
+VERSION=v1.0.1
 
 doit() {
     if [ -f .version ] ; then
