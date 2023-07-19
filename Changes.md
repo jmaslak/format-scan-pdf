@@ -1,3 +1,8 @@
+# v1.1.1 - July 19, 2023 (Joelle Maslak)
+
+ * Shrink image size substantially
+ * Don't crash if qpdf --linearize warns
+
 # v1.1.0 - July 19, 2023 (Joelle Maslak)
 
  * Allow trimming of either left or right (or both) margins

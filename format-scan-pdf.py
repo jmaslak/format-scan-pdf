@@ -259,7 +259,7 @@ def restore_metadata(fn_in, fn_out):
 def remove_metadata(fn_in, fn_out):
     """Remove metadata in PDF file."""
     subprocess.check_call(["exiftool", fn_in, "-all:all=", "-overwrite_original"])
-    subprocess.check_call(["qpdf", "--linearize", fn_in, fn_out])
+    subprocess.call(["qpdf", "--linearize", fn_in, fn_out])
 
 
 def main():
