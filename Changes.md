@@ -1,3 +1,7 @@
+# v1.1.0 - July 19, 2023 (Joelle Maslak)
+
+ * Allow trimming of either left or right (or both) margins
+
 # v1.0.1 - July 17, 2023 (Joelle Maslak)
 
  * Now linearizing PDFs to avoid history of updated tags (those could

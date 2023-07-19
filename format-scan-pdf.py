@@ -143,27 +143,33 @@ def crop(fn_in, fn_out, tmpdir):
         text="Do you want to remove some right margin from the document?\n" +
              "(note this causes loss of everything but the image of te PDF)",
         values=[
-            ("no", "No"),
-            ("10", "Remove right 10%"),
-            ("20", "Remove right 20%"),
+            (["100", "Center"], "No"),
+            (["90", "East"], "Remove left 10%"),
+            (["80", "East"], "Remove left 20%"),
+            (["90", "West"], "Remove right 10%"),
+            (["80", "West"], "Remove right 20%"),
+            (["80", "Center"], "Remove both left and right 10%"),
+            (["60", "Center"], "Remove both left and right 20%"),
         ],
     ).run()
 
     if choice is None:
         print("Exiting without changes.")
         sys.exit()
-    elif choice == "no":
+
+    keep = choice[0]
+    gravity = choice[1]
+
+    if keep == "100":
         shutil.copy(fn_in, fn_out)
-    else:
-        base = os.path.join(tmpdir, "images")
-        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
-        if choice == "10":
-            keep = "90"
-        else:
-            keep = "80"
-        subprocess.check_call(["parallel gm convert {} -crop " + keep + "%x100% {}.new.jpg ::: " +
-                               f"{base}-*[0-9].jpg"], shell=True)
-        subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
+        return
+
+    base = os.path.join(tmpdir, "images")
+    subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+    subprocess.check_call(["parallel gm convert {} -gravity " + gravity +
+                           " -crop " + keep + "%x100% {}.new.jpg ::: " +
+                            f"{base}-*[0-9].jpg"], shell=True)
+    subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
 
 
 def deskew(fn_in, fn_out, tmpdir):
