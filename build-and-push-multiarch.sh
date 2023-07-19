@@ -8,6 +8,12 @@
 VERSION=v1.1.0
 
 doit() {
+    if [ "$SKIP_VERSION_CHECK" != "" ] ; then
+        if grep -E "^$VERSION\$" .version >/dev/null ; then
+            echo "You must update the version number in this script!" >&2
+            exit 1
+        fi
+    fi
     if [ -f .version ] ; then
         if grep -E "^$VERSION\$" .version >/dev/null ; then
             echo "You must update the version number in this script!" >&2
