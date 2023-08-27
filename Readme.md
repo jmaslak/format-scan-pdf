@@ -24,6 +24,12 @@ This docker image has many dependencies, see the format-scan-pdf.py file
 which lists them.  Normal users will not need to concern themselves with
 these dependencies, as they will be part of the image.
 
+# Upgrading Docker Image
+
+```
+docker pull jmaslak/format-scan-pdf
+```
+
 # Executing
 
 Something along the lines of, without installing anything from this
