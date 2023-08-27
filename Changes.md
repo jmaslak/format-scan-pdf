@@ -1,3 +1,9 @@
+# v1.2.0 - August 26, 2023 (Joelle Maslak)
+
+ * Provide options to not deskew first page (useful when the first page
+   is cover art or similar)
+ * Fix deskewing bug when deskewing is used with OCR
+
 # v1.1.1 - July 19, 2023 (Joelle Maslak)
 
  * Shrink image size substantially

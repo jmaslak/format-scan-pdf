@@ -181,8 +181,11 @@ def deskew(fn_in, fn_out, tmpdir):
         values=[
             ("no", "No"),
             ("standard", "Standard Deskew"),
+            ("standard-skip-first", "Standard Deskew (don't deskew first page)"),
             ("100", "100 Pixel Margin Deskew"),
+            ("100-skip-first", "100 Pixel Margin Deskew (don't deskew first page)"),
             ("200", "200 Pixel Margin Deskew"),
+            ("200-skip-first", "200 Pixel Margin Deskew (don't deskew first page)"),
         ],
     ).run()
 
@@ -193,7 +196,28 @@ def deskew(fn_in, fn_out, tmpdir):
         shutil.copy(fn_in, fn_out)
     else:
         base = os.path.join(tmpdir, "images")
-        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+        if "-skip-first" in choice:
+            fn_first = os.path.join(tmpdir, "work-first.pdf")
+            fn_middle = os.path.join(tmpdir, "work-middle.pdf")
+            fn_deskew = os.path.join(tmpdir, "work-deskew.pdf")
+
+            # Deal with converting first page to/from image (so future
+            # OCR doesn't balk)
+            subprocess.check_call(["pdftk", fn_in, "cat", "1", "output", fn_first])
+            firstbase = os.path.join(tmpdir, "first-images")
+            subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_first} {firstbase}"], shell=True)
+            subprocess.check_call([f"gm convert {firstbase}-*.jpg {fn_first}"], shell=True)
+
+            # And we need the rest.
+            subprocess.check_call(["pdftk", fn_in, "cat", "2-end", "output", fn_middle])
+            choice = choice.replace("-skip-first", "")
+        else:
+            fn_first = None
+            fn_middle = fn_in
+            fn_deskew = fn_out
+
+        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_middle} {base}"], shell=True)
+
         if choice == "standard":
             subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " +
                                    f"{base}-*[0-9].jpg"], shell=True)
@@ -201,7 +225,11 @@ def deskew(fn_in, fn_out, tmpdir):
             margins = f"{choice},{choice},{choice},{choice}"
             subprocess.check_call(["parallel deskew -b ffffff -m 100 -r " + margins +
                                    " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
-        subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
+
+        subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_deskew}"], shell=True)
+
+        if fn_first is not None:
+            subprocess.check_call(["pdftk", fn_first, fn_deskew, "cat", "output", fn_out])
 
 
 def remove_hidden(fn_in, fn_out, tmpdir):
@@ -242,7 +270,7 @@ def ocr(fn_in, fn_out):
     if not choice:
         shutil.copy(fn_in, fn_out)
     else:
-        subprocess.check_call(["ocrmypdf", "-d", fn_in, fn_out])
+        subprocess.check_call(["ocrmypdf", fn_in, fn_out])
 
 
 def restore_metadata(fn_in, fn_out):
