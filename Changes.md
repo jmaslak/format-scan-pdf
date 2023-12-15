@@ -1,3 +1,8 @@
+# v1.3.0 - December 15, 2023 (Joelle Maslak)
+
+ * Change default of deskew (and other image conversion) from 72 dpi to
+   300 dpi
+
 # v1.2.0 - August 26, 2023 (Joelle Maslak)
 
  * Provide options to not deskew first page (useful when the first page

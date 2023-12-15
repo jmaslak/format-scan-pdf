@@ -165,7 +165,7 @@ def crop(fn_in, fn_out, tmpdir):
         return
 
     base = os.path.join(tmpdir, "images")
-    subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+    subprocess.check_call([f"pdftoppm -r 300 -cropbox -jpeg {fn_in} {base}"], shell=True)
     subprocess.check_call(["parallel gm convert {} -gravity " + gravity +
                            " -crop " + keep + "%x100% {}.new.jpg ::: " +
                             f"{base}-*[0-9].jpg"], shell=True)
@@ -216,7 +216,7 @@ def deskew(fn_in, fn_out, tmpdir):
             fn_middle = fn_in
             fn_deskew = fn_out
 
-        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_middle} {base}"], shell=True)
+        subprocess.check_call([f"pdftoppm -r 300 -cropbox -jpeg {fn_middle} {base}"], shell=True)
 
         if choice == "standard":
             subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " +
@@ -255,7 +255,7 @@ def remove_hidden(fn_in, fn_out, tmpdir):
         return False
     else:
         base = os.path.join(tmpdir, "images")
-        subprocess.check_call([f"pdftoppm -cropbox -jpeg {fn_in} {base}"], shell=True)
+        subprocess.check_call([f"pdftoppm -r 300 -cropbox -jpeg {fn_in} {base}"], shell=True)
         subprocess.check_call([f"gm convert {base}-*.jpg {fn_out}"], shell=True)
         return True
 
