@@ -5,7 +5,7 @@
 # All Rights Reserved - See License
 #
 
-VERSION=v1.4.0
+VERSION=v1.4.1
 
 doit() {
     if [ "$SKIP_VERSION_CHECK" != "" ] ; then

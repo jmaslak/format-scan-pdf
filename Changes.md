@@ -1,3 +1,7 @@
+# v1.4.1 - January 14, 2024 (Joelle Maslak)
+
+ * Correcting some build issues
+
 # v1.4.0 - January 14, 2024 (Joelle Maslak)
 
  * Support run files (for batch mode)
