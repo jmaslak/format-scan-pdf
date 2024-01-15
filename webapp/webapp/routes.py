@@ -160,10 +160,6 @@ def waiting():
             ],
         )
 
-    from icecream import ic
-
-    ic(f"{SAVELOC}/{key}")
-
     if status is None and os.path.exists(f"{SAVELOC}/{key}-processed.pdf"):
         return redirect(f"done.html?key={key}")
 
@@ -285,9 +281,6 @@ def get_pending_requests(key):
     k = key
     while k is not None:
         k = REDIS.get(f"after-{k}")
-        from icecream import ic
-
-        ic(k)
         if k is not None:
             k = k.decode("utf-8")
         if k is not None and k != "0":
