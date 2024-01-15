@@ -8,24 +8,24 @@
 VERSION=v1.4.1
 
 doit() {
-    if [ "$SKIP_VERSION_CHECK" != "" ] ; then
+    if [ "$SKIP_VERSION_CHECK" == "" ] ; then
         if grep -E "^$VERSION\$" .version >/dev/null ; then
             echo "You must update the version number in this script!" >&2
             exit 1
         fi
-    fi
-    if [ -f .version ] ; then
-        if grep -E "^$VERSION\$" .version >/dev/null ; then
-            echo "You must update the version number in this script!" >&2
+        if [ -f .version ] ; then
+            if grep -E "^$VERSION\$" .version >/dev/null ; then
+                echo "You must update the version number in this script!" >&2
+                exit 1
+            fi
+        fi
+        if grep -E "^\# $VERSION\s" Changes.md >/dev/null ; then
+            # We are good!
+            echo "Changelog is updated!"
+        else
+            echo "You must add a changelog entry!" >&2
             exit 1
         fi
-    fi
-    if grep -E "^\# $VERSION\s" Changes.md >/dev/null ; then
-        # We are good!
-        echo "Changelog is updated!"
-    else
-        echo "You must add a changelog entry!" >&2
-        exit 1
     fi
     echo $VERSION >>.version
     git add .version
