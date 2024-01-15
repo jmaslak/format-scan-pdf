@@ -286,11 +286,11 @@ def deskew(fn_in, fn_out, tmpdir, runfile):
         subprocess.check_call([f"pdftoppm -r 300 -cropbox -jpeg {fn_middle} {base}"], shell=True)
 
         if choice == "standard":
-            subprocess.check_call(["parallel deskew -b ffffff -m 100 -o {}.new.jpg {} ::: " +
+            subprocess.check_call(["parallel deskew -b ffffff -a 20 -m 100 -o {}.new.jpg {} ::: " +
                                    f"{base}-*[0-9].jpg"], shell=True)
         else:
             margins = f"{choice},{choice},{choice},{choice}"
-            subprocess.check_call(["parallel deskew -b ffffff -m 100 -r " + margins +
+            subprocess.check_call(["parallel deskew -b ffffff -a 20 -m 100 -r " + margins +
                                    " -o {}.new.jpg {} ::: " + f"{base}-*[0-9].jpg"], shell=True)
 
         subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_deskew}"], shell=True)
