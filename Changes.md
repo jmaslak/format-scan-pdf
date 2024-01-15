@@ -1,3 +1,7 @@
+# v1.4.2 - January 14, 2024 (Joelle Maslak)
+
+ * Adjust deskew angle to 20 degrees max (rather than 10)
+
 # v1.4.1 - January 14, 2024 (Joelle Maslak)
 
  * Correcting some build issues
