@@ -1,0 +1,4 @@
+celery
+flask
+Jinja2
+redis

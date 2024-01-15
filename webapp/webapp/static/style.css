@@ -1,0 +1,72 @@
+@media screen and (min-width: 50em) {
+  .body {
+    margin-left:calc((100vw - 50em) / 2);
+  }
+}
+body {
+  font-family: Helvetica, Sans-Serif;
+  max-width: 50em;
+  background-color: #efe3fd;
+}
+fieldset {
+  margin-top: 1em;
+  border-color: #660066;
+  border-radius: 25px;
+  background-color: #f4ebfe;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  padding-bottom: 1.5em;
+}
+fieldset p {
+  color: #404040;
+}
+legend {
+  margin-left: 15px;
+  padding-left: .5em;
+  padding-right: .5em;
+  font-size: 110%;
+  font-weight: bold;
+  color: #110066;
+  padding-top: .5em;
+}
+h1 {
+  font-size: 120%;
+}
+.statushead {
+  color: #110066;
+  font-size: 200%;
+}
+.bigtext {
+  font-size: 175%;
+}
+.errorhead {
+  color: #E00000;
+  font-size: 200%;
+}
+.errortext {
+  font-size: 200%;
+  color: #110066;
+}
+.input {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 110%;
+}
+.input label {
+  font-weight: bold;
+  color: #110066;
+}
+.submit {
+  margin: auto;
+  text-align: center;
+}
+.submit input[type=submit] {
+  font-size: 200%;
+  font-weight: bold;
+  padding: .5em;
+  background-color: #f4ebfe;
+  color: #110066;
+  border-color: #660066;
+  border-width: 3px;
+  border-radius: 15px;
+}

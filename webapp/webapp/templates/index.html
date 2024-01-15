@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="stylesheet" href="">
+  <title>Format a Scanned PDF</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="body">
+  <h1>Format a Scanned PDF</h1>
+  <form action="" method="post" enctype="multipart/form-data">
+    <fieldset>
+      <legend>Remove some metadata</legend>
+      <p>Would you like to remove some of the metadata from this document, to make
+      it somewhat more private?</p>
+
+      <p>Note this will remove all text layers (which
+      OCR, later, can re-add some of) and indexes.  This functions by converting
+      all pages to an image and back into a PDF.  You may still leak some data,
+      such as the use of this tool, so if you are doing something particularly
+      sensitive, you will want to use other methods to confirm that you are
+      not leaking anything you don't want to leak.</p>
+      <div>
+        <input type="radio" name="remove_metadata" id="no" value="no" checked>
+        <label for="no">No</label>
+      </div>
+      <div>
+        <input type="radio" name="remove_metadata" id="yes" value="yes">
+        <label for="yes">Yes</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Rotate Pages</legend>
+      <p>Would you like to rotate the pages?</p>
+      <div>
+        <input type="radio" name="rotate" id="none" value="none" checked>
+        <label for="none">No</label>
+      </div>
+      <div>
+        <input type="radio" name="rotate" id="clockwise" value="clockwise">
+        <label for="clockwise">Rotate pages 90 degrees clockwise</label>
+      </div>
+      <div>
+        <input type="radio" name="rotate" id="anticlockwise" value="anticlockwise">
+        <label for="anticlockwise">Rotate pages 90 degrees anticlockwise</label>
+      </div>
+      <div>
+        <input type="radio" name="rotate" id="180" value="180">
+        <label for="180">Rotate pages 180 degrees</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Crop Pages</legend>
+      <p>Would you like to crop the pages?</p>
+      <p>Note that this causes loss of all text layers (which OCR, later,
+      can re-add some of) and indexes.</p>
+      <div>
+        <input type="radio" name="crop" id="100center" value="100center" checked>
+        <label for="100center">No cropping</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="90east" value="90east">
+        <label for="90east">Remove right 10&percnt;</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="80east" value="80east">
+        <label for="80east">Remove right 20&percnt;</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="90west" value="90west">
+        <label for="90west">Remove left 10&percnt;</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="80west" value="80west">
+        <label for="80west">Remove left 20&percnt;</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="80center" value="80center">
+        <label for="80center">Remove left and right 10&percnt;</label>
+      </div>
+      <div>
+        <input type="radio" name="crop" id="60center" value="60center">
+        <label for="60center">Remove left and right 20&percnt;</label>
+      </div>
+      <div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Split Pages</legend>
+      <p>Would you like to split each original page into two pages in the output?</p>
+      <div>
+        <input type="radio" name="split" id="no" value="no" checked>
+        <label for="no">No</label>
+      </div>
+      <div>
+        <input type="radio" name="split" id="all" value="all">
+        <label for="all">Split all pages</label>
+      </div>
+      <div>
+        <input type="radio" name="split" id="skipfirst" value="skipfirst">
+        <label for="skipfirst">Split all but first page</label>
+      </div>
+      <div>
+        <input type="radio" name="split" id="skiplast" value="skiplast">
+        <label for="skiplast">Split all but last page</label>
+      </div>
+      <div>
+        <input type="radio" name="split" id="skipfirstlast" value="skipfirstlast">
+        <label for="skipfirstlast">Split all but first and last pages</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Remove Pages</legend>
+      <p>Would you like to remove some pages from the output?</p>
+      <div>
+        <input type="radio" name="remove_pages" id="no" value="no" checked>
+        <label for="no">No</label>
+      </div>
+      <div>
+        <input type="radio" name="remove_pages" id="first" value="first">
+        <label for="first">Remove first page</label>
+      </div>
+      <div>
+        <input type="radio" name="remove_pages" id="last" value="last">
+        <label for="last">Remove last page</label>
+      </div>
+      <div>
+        <input type="radio" name="remove_pages" id="firstlast" value="firstlast">
+        <label for="firstlast">Remove first and last pages</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Deskew Pages</legend>
+      <p>Would you like to deskew (remove some tilt) pages?</p>
+      <p>Note that this causes loss of all text layers (which OCR, later,
+      can re-add some of) and indexes.</p>
+      <div>
+        <input type="radio" name="deskew" id="no" value="no" checked>
+        <label for="no">No</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="standard" value="standard">
+        <label for="standard">Standard deskewing of all pages</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="standardskipfirst" value="standardskipfirst">
+        <label for="standardskipfirst">Standard deskewing of all pages except first page</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="100" value="100">
+        <label for="100">Deskew, considering only text more than 100 pixels from the edge</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="100skipfirst" value="100skipfirst">
+        <label for="100skipfirst">Deskew, considering only text more than 100 pixels from the edge (except first page)</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="200" value="200">
+        <label for="200">Deskew, considering only text more than 200 pixels from the edge</label>
+      </div>
+      <div>
+        <input type="radio" name="deskew" id="200skipfirst" value="200skipfirst">
+        <label for="200skipfirst">Deskew, considering only text more than 200 pixels from the edge (except first page)</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>OCR Document</legend>
+      <p>Would you like to add/replace an OCR layer to the document?</p>
+      <div>
+        <input type="radio" name="ocr" id="no" value="no" checked>
+        <label for="no">No</label>
+      </div>
+      <div>
+        <input type="radio" name="ocr" id="yes" value="yes">
+        <label for="yes">Yes</label>
+      </div>
+    </fieldset>
+    <div class="input">
+      <label for="file">Select a PDF file to reformat:</label>
+      <input type="file" id="file", name="file", accept="*.pdf,application/pdf">
+    </div>
+    <div class="submit">
+      <input type="submit" action="submit" value="Submit - Process PDF">
+    </div>
+  </form>
+</body>
+</html>
+

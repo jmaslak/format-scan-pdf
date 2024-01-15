@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="15">
+  <title></title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="body">
+  <h1 class="statushead">Waiting...</h1>
+  <p class="bigtext">Your request is {{status}}.</p>
+{% if pending == 1 %}
+  <p>There is currently 1 request in front of your request.</p>
+{% else %}
+  <p>There are currently {{pending}} requests in front of your request.</p>
+{% endif %}
+  <p>Please do not navigate away from this page or resubmit your task. It
+  will be processed as soon as possible!</p>
+  <p>Note that long documents may take several minutes to process!</p>
+</body>
+</html>
+
