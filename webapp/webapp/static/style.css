@@ -47,6 +47,10 @@ h1 {
   font-size: 200%;
   color: #110066;
 }
+.credittext {
+  padding-top: 2em;
+  color: #110066;
+}
 .input {
   margin-top: 1em;
   margin-bottom: 1em;
