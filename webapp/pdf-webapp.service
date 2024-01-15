@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=pdf
 WorkingDirectory=/home/pdf/format-scan-pdf/webapp
-ExecStart=gunicorn -4 -b 0.0.0.0:5000 'webapp:app'
+ExecStart=gunicorn -w 4 -b 0.0.0.0:5000 'webapp:app'
 
 [Install]
 WantedBy=multi-user.target
