@@ -35,7 +35,7 @@ def process_pdf(prefix):
     REDIS.set(f"status-{filepart}", "processing")
 
     try:
-        subprocess.run(["docker", "run", "-it", "--user",
+        subprocess.run(["docker", "run", "--user",
                         f"{os.getuid()}:{os.getgid()}", "-v",
                         f"{dirname}:/usr/pdf", "jmaslak/format-scan-pdf",
                         "--runfile", f"{filepart}.run",
