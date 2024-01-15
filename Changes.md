@@ -1,3 +1,8 @@
+# v1.4.0 - January 14, 2024 (Joelle Maslak)
+
+ * Support run files (for batch mode)
+ * Allow re-OCRing of already OCRed docs when no other changes are made.
+
 # v1.3.0 - December 15, 2023 (Joelle Maslak)
 
  * Change default of deskew (and other image conversion) from 72 dpi to

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #
-# Copyright (C) 2023 Joelle Maslak
+# Copyright (C) 2023-2024 Joelle Maslak
 # All Rights Reserved - See License
 #
 
-VERSION=v1.3.0
+VERSION=v1.4.0
 
 doit() {
     if [ "$SKIP_VERSION_CHECK" != "" ] ; then

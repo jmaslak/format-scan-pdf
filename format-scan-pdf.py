@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Copyright (C) 2023 Joelle Maslak
+# Copyright (C) 2023-2024 Joelle Maslak
 # All Rights Reserved - See License
 #
 
@@ -25,6 +25,7 @@
 import argparse
 import os
 import os.path
+import re
 import shutil
 import subprocess
 import sys
@@ -36,48 +37,72 @@ from prompt_toolkit.shortcuts import radiolist_dialog, yes_no_dialog
 def parse_arguments():
     """Get arguments from command line."""
     parser = argparse.ArgumentParser(description="Make scanned PDFs more usable")
+    parser.add_argument('--runfile', help="Run (config) filename")
     parser.add_argument('infile', help="Input filename")
     parser.add_argument('outfile', help="Output filename")
 
     args = parser.parse_args()
-    return args
+    runfile = {}
+
+    if args.runfile is not None:
+        with open(args.runfile, "r") as f:
+            for line in f:
+                line = line.strip()
+                eles = line.lower().split(" ", 1)
+                if len(eles) == 2:
+                    runfile[eles[0]] = eles[1]
+    return args, runfile
 
 
-def rotate(fn_in, fn_out):
+def rotate(fn_in, fn_out, runfile):
     """Prompt user for rotation info and rotate document."""
-    choice = radiolist_dialog(
-        title="File Rotation",
-        text="Indicate how the document should be rotated",
-        values=[
-            ("None", "None"),
-            ("1-endeast", "Clockwise"),
-            ("1-endwest", "Anti-Clockwise"),
-            ("1-endsouth", "180 Degrees"),
-        ],
-    ).run()
+    if "rotate" in runfile:
+        if runfile["rotate"] not in ("none", "clockwise", "anticlockwise", "180"):
+            choice = "none"
+        else:
+            choice = runfile["rotate"]
+
+    else:
+        choice = radiolist_dialog(
+            title="File Rotation",
+            text="Indicate how the document should be rotated",
+            values=[
+                ("None", "None"),
+                ("1-endeast", "Clockwise"),
+                ("1-endwest", "Anti-Clockwise"),
+                ("1-endsouth", "180 Degrees"),
+            ],
+        ).run()
 
     if choice is None:
         print("Exiting without changes.")
         sys.exit()
-    elif choice == "None":
+    elif choice.lower() == "none":
         shutil.copy(fn_in, fn_out)
     else:
         subprocess.check_call(["pdftk", fn_in, "cat", choice, "output", fn_out])
 
 
-def split_pages(fn_in, fn_out, tmpdir):
+def split_pages(fn_in, fn_out, tmpdir, runfile):
     """Split pages in scan."""
-    choice = radiolist_dialog(
-        title="Page Split",
-        text="Do you want to split each input page into two output pages?",
-        values=[
-            ("no", "No"),
-            ("all", "Split all pages"),
-            ("skipfirst", "Split all but FIRST page"),
-            ("skiplast", "Split all but LAST page"),
-            ("skipfirstlast", "Split all but FIRST and LAST page"),
-        ],
-    ).run()
+    if "split" in runfile:
+        if runfile["split"] not in ("no", "all", "skipfirst", "skiplast", "skipfirstlast"):
+            choice = "no"
+        else:
+            choice = runfile["split"]
+
+    else:
+        choice = radiolist_dialog(
+            title="Page Split",
+            text="Do you want to split each input page into two output pages?",
+            values=[
+                ("no", "No"),
+                ("all", "Split all pages"),
+                ("skipfirst", "Split all but FIRST page"),
+                ("skiplast", "Split all but LAST page"),
+                ("skipfirstlast", "Split all but FIRST and LAST page"),
+            ],
+        ).run()
 
     if not choice:
         print("Exiting without changes.")
@@ -114,18 +139,31 @@ def split_pages(fn_in, fn_out, tmpdir):
         subprocess.check_call(["pdftk", fn_first, fn_split, fn_last, "cat", "output", fn_out])
 
 
-def remove_pages(fn_in, fn_out):
+def remove_pages(fn_in, fn_out, runfile):
     """Remove pages in scan."""
-    choice = radiolist_dialog(
-        title="Remove Pages",
-        text="Indicate which pages should be removed from the output",
-        values=[
-            ("None", "None"),
-            ("2-end", "First Page"),
-            ("1-r2", "Last Page"),
-            ("2-r2", "First and Last Page"),
-        ],
-    ).run()
+    if "remove_pages" in runfile:
+        if runfile["remove_pages"] not in ("none", "first", "last", "firstlast"):
+            choice = "None"
+        elif runfile["remove_pages"] == "none":
+            choice = "None"
+        elif runfile["remove_pages"] == "first":
+            choice = "2-end"
+        elif runfile["remove_pages"] == "last":
+            choice = "1-r2"
+        elif runfile["remove_pages"] == "firstlast":
+            choice = "2-r2"
+
+    else:
+        choice = radiolist_dialog(
+            title="Remove Pages",
+            text="Indicate which pages should be removed from the output",
+            values=[
+                ("None", "None"),
+                ("2-end", "First Page"),
+                ("1-r2", "Last Page"),
+                ("2-r2", "First and Last Page"),
+            ],
+        ).run()
 
     if not choice:
         print("Exiting without changes.")
@@ -136,22 +174,34 @@ def remove_pages(fn_in, fn_out):
         subprocess.check_call(["pdftk", fn_in, "cat", choice, "output", fn_out])
 
 
-def crop(fn_in, fn_out, tmpdir):
+def crop(fn_in, fn_out, tmpdir, runfile):
     """Prompt user to remove some right margin."""
-    choice = radiolist_dialog(
-        title="Remove Right Margin",
-        text="Do you want to remove some right margin from the document?\n" +
-             "(note this causes loss of everything but the image of te PDF)",
-        values=[
-            (["100", "Center"], "No"),
-            (["90", "East"], "Remove left 10%"),
-            (["80", "East"], "Remove left 20%"),
-            (["90", "West"], "Remove right 10%"),
-            (["80", "West"], "Remove right 20%"),
-            (["80", "Center"], "Remove both left and right 10%"),
-            (["60", "Center"], "Remove both left and right 20%"),
-        ],
-    ).run()
+    if "crop" in runfile:
+        match = re.match(r"^(\d+)\s*(left|right|center)$", runfile["crop"])
+        if match is None:
+            choice = ["100", "Center"]
+        elif match.group(2) == "left":
+            choice = [match.group(1), "Left"]
+        elif match.group(2) == "right":
+            choice = [match.group(1), "Right"]
+        elif match.group(2) == "center":
+            choice = [match.group(1), "Center"]
+
+    else:
+        choice = radiolist_dialog(
+            title="Remove Right Margin",
+            text="Do you want to remove some margin from the document?\n" +
+                "(note this causes loss of everything but the image of te PDF)",
+            values=[
+                (["100", "Center"], "No"),
+                (["90", "East"], "Remove left 10%"),
+                (["80", "East"], "Remove left 20%"),
+                (["90", "West"], "Remove right 10%"),
+                (["80", "West"], "Remove right 20%"),
+                (["80", "Center"], "Remove both left and right 10%"),
+                (["60", "Center"], "Remove both left and right 20%"),
+            ],
+        ).run()
 
     if choice is None:
         print("Exiting without changes.")
@@ -172,22 +222,39 @@ def crop(fn_in, fn_out, tmpdir):
     subprocess.check_call([f"gm convert {base}-*.new.jpg {fn_out}"], shell=True)
 
 
-def deskew(fn_in, fn_out, tmpdir):
+def deskew(fn_in, fn_out, tmpdir, runfile):
     """Prompt user to determine if they want deskewing and, if so, deskew it."""
-    choice = radiolist_dialog(
-        title="Deskew",
-        text="Do you want to deskew the document?\n" +
-             "(note this causes loss of everything but the image of te PDF)",
-        values=[
-            ("no", "No"),
-            ("standard", "Standard Deskew"),
-            ("standard-skip-first", "Standard Deskew (don't deskew first page)"),
-            ("100", "100 Pixel Margin Deskew"),
-            ("100-skip-first", "100 Pixel Margin Deskew (don't deskew first page)"),
-            ("200", "200 Pixel Margin Deskew"),
-            ("200-skip-first", "200 Pixel Margin Deskew (don't deskew first page)"),
-        ],
-    ).run()
+    if "deskew" in runfile:
+        if runfile["deskew"] == "no":
+            choice = "no"
+        elif runfile["deskew"] == "standard":
+            choice = "standard"
+        elif runfile["deskew"] == "standardskipfirst":
+            choice = "standard-skip-first"
+        elif runfile["deskew"] == "100":
+            choice = "100"
+        elif runfile["deskew"] == "100skipfirst":
+            choice = "100-skip-first"
+        elif runfile["deskew"] == "200":
+            choice = "200"
+        elif runfile["deskew"] == "200skipfirst":
+            choice = "200-skip-first"
+
+    else:
+        choice = radiolist_dialog(
+            title="Deskew",
+            text="Do you want to deskew the document?\n" +
+                "(note this causes loss of everything but the image of te PDF)",
+            values=[
+                ("no", "No"),
+                ("standard", "Standard Deskew"),
+                ("standard-skip-first", "Standard Deskew (don't deskew first page)"),
+                ("100", "100 Pixel Margin Deskew"),
+                ("100-skip-first", "100 Pixel Margin Deskew (don't deskew first page)"),
+                ("200", "200 Pixel Margin Deskew"),
+                ("200-skip-first", "200 Pixel Margin Deskew (don't deskew first page)"),
+            ],
+        ).run()
 
     if choice is None:
         print("Exiting without changes.")
@@ -232,20 +299,23 @@ def deskew(fn_in, fn_out, tmpdir):
             subprocess.check_call(["pdftk", fn_first, fn_deskew, "cat", "output", fn_out])
 
 
-def remove_hidden(fn_in, fn_out, tmpdir):
+def remove_hidden(fn_in, fn_out, tmpdir, runfile):
     """Prompt user to remove hidden layers, metadata, etc."""
-    choice = radiolist_dialog(
-        title="Deskew",
-        text="Do you want to remove/redact everything invisible from this file?\n\nNote:\n" +
-             "  - This will remove all text layers (OCR can re-add SOME of that).\n" +
-             "  - This functions by converting pages to images and back to PDF.\n" +
-             "  - You may still leak some data, such as the use of this tool.\n" +
-             "  - If you are doing something sensitive, verify this worked successfully!",
-        values=[
-            ("no", "No"),
-            ("yes", "Yes"),
-        ],
-    ).run()
+    if "remove_metadata" in runfile:
+        choice = runfile["remove_metadata"]
+    else:
+        choice = radiolist_dialog(
+            title="Remove Metadata",
+            text="Do you want to remove/redact everything invisible from this file?\n\nNote:\n" +
+                "  - This will remove all text layers (OCR can re-add SOME of that).\n" +
+                "  - This functions by converting pages to images and back to PDF.\n" +
+                "  - You may still leak some data, such as the use of this tool.\n" +
+                "  - If you are doing something sensitive, verify this worked successfully!",
+            values=[
+                ("no", "No"),
+                ("yes", "Yes"),
+            ],
+        ).run()
 
     if choice is None:
         print("Exiting without changes.")
@@ -260,17 +330,23 @@ def remove_hidden(fn_in, fn_out, tmpdir):
         return True
 
 
-def ocr(fn_in, fn_out):
+def ocr(fn_in, fn_out, runfile):
     """Prompt user to determine if they want OCR and, if so, OCR it."""
-    choice = yes_no_dialog(
-        title="OCR",
-        text="Perform Optical Character Recognition?",
-    ).run()
+    if "ocr" in runfile:
+        if runfile["ocr"] == "yes":
+            choice = True
+        else:
+            choice = False
+    else:
+        choice = yes_no_dialog(
+            title="OCR",
+            text="Perform Optical Character Recognition?",
+        ).run()
 
     if not choice:
         shutil.copy(fn_in, fn_out)
     else:
-        subprocess.check_call(["ocrmypdf", fn_in, fn_out])
+        subprocess.check_call(["ocrmypdf", "--force-ocr", fn_in, fn_out])
 
 
 def restore_metadata(fn_in, fn_out):
@@ -292,7 +368,7 @@ def remove_metadata(fn_in, fn_out):
 
 def main():
     """Main application function."""
-    args = parse_arguments()
+    args, runfile = parse_arguments()
 
     tmpdir = tempfile.TemporaryDirectory()
 
@@ -303,25 +379,25 @@ def main():
 
     shutil.copy(fn_in, fn_tmp1)
 
-    hide_metadata = remove_hidden(fn_tmp1, fn_tmp2, tmpdir.name)
+    hide_metadata = remove_hidden(fn_tmp1, fn_tmp2, tmpdir.name, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
-    rotate(fn_tmp1, fn_tmp2)
+    rotate(fn_tmp1, fn_tmp2, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
-    crop(fn_tmp1, fn_tmp2, tmpdir.name)
+    crop(fn_tmp1, fn_tmp2, tmpdir.name, runfile)
     subprocess.check_call(["pdftk", fn_tmp2, "cat", "output", fn_tmp1])
 
-    split_pages(fn_tmp1, fn_tmp2, tmpdir.name)
+    split_pages(fn_tmp1, fn_tmp2, tmpdir.name, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
-    remove_pages(fn_tmp1, fn_tmp2)
+    remove_pages(fn_tmp1, fn_tmp2, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
-    deskew(fn_tmp1, fn_tmp2, tmpdir.name)
+    deskew(fn_tmp1, fn_tmp2, tmpdir.name, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
-    ocr(fn_tmp1, fn_tmp2)
+    ocr(fn_tmp1, fn_tmp2, runfile)
     shutil.copy(fn_tmp2, fn_tmp1)
 
     if hide_metadata:
