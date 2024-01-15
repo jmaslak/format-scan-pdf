@@ -1,0 +1,15 @@
+[Unit]
+Description=Celery PDF Worker
+After=NetworkManager.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pdf
+WorkingDirectory=/home/pdf/format-scan-pdf/webapp
+ExecStart=celery -A webapp.celery_app worker --concurrency=1 --loglevel INFO
+
+[Install]
+WantedBy=multi-user.target
