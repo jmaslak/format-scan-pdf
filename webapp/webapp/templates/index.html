@@ -7,12 +7,22 @@
   <title></title>
   <link rel="stylesheet" href="">
   <title>Format a Scanned PDF</title>
-  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/style.css?ver=1">
 </head>
 <body class="body">
   <h1>Format a Scanned PDF</h1>
   <form action="" method="post" enctype="multipart/form-data">
-    <fieldset>
+{% if errors |count > 0: %}
+    <fieldset class="error">
+      <legend>I'm Sorry!</legend>
+      <ul>
+{%   for error in errors: %}
+        <li>{{error}}</li>
+{%   endfor %}
+      </ul>
+    </fieldset>
+{% endif %}
+    <fieldset class="radio">
       <legend>Remove some metadata</legend>
       <p>Would you like to remove some of the metadata from this document, to make
       it somewhat more private?</p>
@@ -24,168 +34,169 @@
       sensitive, you will want to use other methods to confirm that you are
       not leaking anything you don't want to leak.</p>
       <div>
-        <input type="radio" name="remove_metadata" id="no" value="no" checked>
+        <input type="radio" name="remove_metadata" id="no" value="no" {% if fields["remove_metadata"] in ("", "no") %}checked{% endif %}>
         <label for="no">No</label>
       </div>
       <div>
-        <input type="radio" name="remove_metadata" id="yes" value="yes">
+        <input type="radio" name="remove_metadata" id="yes" value="yes" {% if fields["remove_metadata"] == "yes" %}checked{% endif %}>
         <label for="yes">Yes</label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>Rotate Pages</legend>
       <p>Would you like to rotate the pages?</p>
       <div>
-        <input type="radio" name="rotate" id="none" value="none" checked>
+        <input type="radio" name="rotate" id="none" value="none" {% if fields["rotate"] in ("", "none") %}checked{% endif %}>
         <label for="none">No</label>
       </div>
       <div>
-        <input type="radio" name="rotate" id="clockwise" value="clockwise">
+        <input type="radio" name="rotate" id="clockwise" value="clockwise" {% if fields["rotate"] == "clockwise" %}checked{% endif %}>
         <label for="clockwise">Rotate pages 90 degrees clockwise</label>
       </div>
       <div>
-        <input type="radio" name="rotate" id="anticlockwise" value="anticlockwise">
+        <input type="radio" name="rotate" id="anticlockwise" value="anticlockwise" {% if fields["rotate"] == "anticlockwise" %}checked{% endif %}>
         <label for="anticlockwise">Rotate pages 90 degrees anticlockwise</label>
       </div>
       <div>
-        <input type="radio" name="rotate" id="180" value="180">
+        <input type="radio" name="rotate" id="180" value="180" {% if fields["rotate"] == "180" %}checked{% endif %}>
         <label for="180">Rotate pages 180 degrees</label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>Crop Pages</legend>
       <p>Would you like to crop the pages?</p>
       <p>Note that this causes loss of all text layers (which OCR, later,
       can re-add some of) and indexes.</p>
       <div>
-        <input type="radio" name="crop" id="100center" value="100center" checked>
+        <input type="radio" name="crop" id="100center" value="100center" {% if fields["crop"] in ("", "100center") %}checked{% endif %}>
         <label for="100center">No cropping</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="90east" value="90east">
+        <input type="radio" name="crop" id="90east" value="90east" {% if fields["crop"] == "90east" %}checked{% endif %}>
         <label for="90east">Remove right 10&percnt;</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="80east" value="80east">
+        <input type="radio" name="crop" id="80east" value="80east" {% if fields["crop"] == "80east" %}checked{% endif %}>
         <label for="80east">Remove right 20&percnt;</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="90west" value="90west">
+        <input type="radio" name="crop" id="90west" value="90west" {% if fields["crop"] == "90west" %}checked{% endif %}>
         <label for="90west">Remove left 10&percnt;</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="80west" value="80west">
+        <input type="radio" name="crop" id="80west" value="80west" {% if fields["crop"] == "80west" %}checked{% endif %}>
         <label for="80west">Remove left 20&percnt;</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="80center" value="80center">
+        <input type="radio" name="crop" id="80center" value="80center" {% if fields["crop"] == "80center" %}checked{% endif %}>
         <label for="80center">Remove left and right 10&percnt;</label>
       </div>
       <div>
-        <input type="radio" name="crop" id="60center" value="60center">
+        <input type="radio" name="crop" id="60center" value="60center" {% if fields["crop"] == "60center" %}checked{% endif %}>
         <label for="60center">Remove left and right 20&percnt;</label>
       </div>
-      <div>
-      </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>Split Pages</legend>
       <p>Would you like to split each original page into two pages in the output?</p>
       <div>
-        <input type="radio" name="split" id="no" value="no" checked>
+        <input type="radio" name="split" id="no" value="no" {% if fields["split"] in ("", "no") %}checked{% endif %}>
         <label for="no">No</label>
       </div>
       <div>
-        <input type="radio" name="split" id="all" value="all">
+        <input type="radio" name="split" id="all" value="all" {% if fields["split"] == "all" %}checked{% endif %}>
         <label for="all">Split all pages</label>
       </div>
       <div>
-        <input type="radio" name="split" id="skipfirst" value="skipfirst">
+        <input type="radio" name="split" id="skipfirst" value="skipfirst" {% if fields["split"] == "skipfirst" %}checked{% endif %}>
         <label for="skipfirst">Split all but first page</label>
       </div>
       <div>
-        <input type="radio" name="split" id="skiplast" value="skiplast">
+        <input type="radio" name="split" id="skiplast" value="skiplast" {% if fields["split"] == "skiplast" %}checked{% endif %}>
         <label for="skiplast">Split all but last page</label>
       </div>
       <div>
-        <input type="radio" name="split" id="skipfirstlast" value="skipfirstlast">
+        <input type="radio" name="split" id="skipfirstlast" value="skipfirstlast" {% if fields["split"] == "skipfirstlast" %}checked{% endif %}>
         <label for="skipfirstlast">Split all but first and last pages</label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>Remove Pages</legend>
       <p>Would you like to remove some pages from the output?</p>
       <div>
-        <input type="radio" name="remove_pages" id="no" value="no" checked>
+        <input type="radio" name="remove_pages" id="no" value="no" {% if fields["remove_pages"] in ("", "no") %}checked{% endif %}>
         <label for="no">No</label>
       </div>
       <div>
-        <input type="radio" name="remove_pages" id="first" value="first">
+        <input type="radio" name="remove_pages" id="first" value="first" {% if fields["remove_pages"] == "first" %}checked{% endif %}>
         <label for="first">Remove first page</label>
       </div>
       <div>
-        <input type="radio" name="remove_pages" id="last" value="last">
+        <input type="radio" name="remove_pages" id="last" value="last" {% if fields["remove_pages"] == "last" %}checked{% endif %}>
         <label for="last">Remove last page</label>
       </div>
       <div>
-        <input type="radio" name="remove_pages" id="firstlast" value="firstlast">
+        <input type="radio" name="remove_pages" id="firstlast" value="firstlast" {% if fields["remove_pages"] == "firstlast" %}checked{% endif %}>
         <label for="firstlast">Remove first and last pages</label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>Deskew Pages</legend>
       <p>Would you like to deskew (remove some tilt) pages?</p>
       <p>Note that this causes loss of all text layers (which OCR, later,
       can re-add some of) and indexes.</p>
       <div>
-        <input type="radio" name="deskew" id="no" value="no" checked>
+        <input type="radio" name="deskew" id="no" value="no" {% if fields["deskew"] in ("", "no") %}checked{% endif %}>
         <label for="no">No</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="standard" value="standard">
+        <input type="radio" name="deskew" id="standard" value="standard" {% if fields["deskew"] == "standard" %}checked{% endif %}>
         <label for="standard">Standard deskewing of all pages</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="standardskipfirst" value="standardskipfirst">
+        <input type="radio" name="deskew" id="standardskipfirst" value="standardskipfirst" {% if fields["deskew"] == "standardskipfirst" %}checked{% endif %}>
         <label for="standardskipfirst">Standard deskewing of all pages except first page</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="100" value="100">
+        <input type="radio" name="deskew" id="100" value="100" {% if fields["deskew"] == "100" %}checked{% endif %}>
         <label for="100">Deskew, considering only text more than 100 pixels from the edge</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="100skipfirst" value="100skipfirst">
+        <input type="radio" name="deskew" id="100skipfirst" value="100skipfirst" {% if fields["deskew"] == "100skipfirst" %}checked{% endif %}>
         <label for="100skipfirst">Deskew, considering only text more than 100 pixels from the edge (except first page)</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="200" value="200">
+        <input type="radio" name="deskew" id="200" value="200" {% if fields["deskew"] == "200" %}checked{% endif %}>
         <label for="200">Deskew, considering only text more than 200 pixels from the edge</label>
       </div>
       <div>
-        <input type="radio" name="deskew" id="200skipfirst" value="200skipfirst">
+        <input type="radio" name="deskew" id="200skipfirst" value="200skipfirst" {% if fields["deskew"] == "200skipfirst" %}checked{% endif %}>
         <label for="200skipfirst">Deskew, considering only text more than 200 pixels from the edge (except first page)</label>
       </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="radio">
       <legend>OCR Document</legend>
       <p>Would you like to add/replace an OCR layer to the document?</p>
       <div>
-        <input type="radio" name="ocr" id="no" value="no" checked>
+        <input type="radio" name="ocr" id="no" value="no" {% if fields["ocr"] in ("", "no") %}checked{% endif %}>
         <label for="no">No</label>
       </div>
       <div>
-        <input type="radio" name="ocr" id="yes" value="yes">
+        <input type="radio" name="ocr" id="yes" value="yes" {% if fields["ocr"] == "yes" %}checked{% endif %}>
         <label for="yes">Yes</label>
       </div>
     </fieldset>
-    <div class="input">
-      <label for="file">Select a PDF file to reformat:</label>
-      <input type="file" id="file", name="file", accept="*.pdf,application/pdf">
-    </div>
+    <fieldset class="file">
+      <legend>PDF Source File</legend>
+      <div class="input">
+        <label for="file">Select a file:</label>
+        <input type="file" id="file", name="file", accept="*.pdf,application/pdf">
+      </div>
+    </fieldset>
     <div class="submit">
       <input type="submit" action="submit" value="Submit - Process PDF">
     </div>
-    <p class="credittext">This tool was created by Joelle Maslak. Source code is
+    <p class="credittext">This tool was created by <a href="https://github.com/jmaslak/resume">Joelle Maslak</a>. Source code is
     available <a href="https://github.com/jmaslak/format-scan-pdf/">on Github</a>.</p>
   </form>
 </body>

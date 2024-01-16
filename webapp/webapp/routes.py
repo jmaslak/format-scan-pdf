@@ -29,19 +29,30 @@ REDIS = redis.from_url("redis://localhost")
 @app.route("/index")
 @app.route("/index.html")
 def index():
-    return render_template("index.html")
+    fields = {}
+    for k in ("remove_metadata", "rotate", "crop", "split", "remove_pages", "deskew", "ocr"):
+        fields[k] = ""
+
+    return render_template("index.html", errors=[], fields=fields)
 
 
 @app.route("/", methods=["POST"])
 @app.route("/index", methods=["POST"])
 @app.route("/index.html", methods=["POST"])
 def index_post():
+    fields = {}
+    for k in ("remove_metadata", "rotate", "crop", "split", "remove_pages", "deskew", "ocr"):
+        if request.form.get(k) is None:
+            fields[k] = ""
+        else:
+            fields[k] = request.form.get(k)
+
     if "file" not in request.files:
-        return render_template("error.html", errortext=["You must select a PDF file."])
+        return render_template("index.html", errors=["Please select a PDF file to upload"], fields=fields)
 
     kq = REDIS.get("keysqueued")
     if kq is not None and int(kq) >= MAXQUEUE:
-        return render_template("error.html", errortext=["Server is too busy right now.", "Please try later."])
+        return render_template("index.html", errors=["The server is too busy right now.", "Please try later."], fields=fields)
 
     invalid = False
     if request.form.get("remove_metadata") not in ("no", "yes"):
@@ -101,10 +112,10 @@ def index_post():
     f.save(f"{prefix}.pdf")
     filelen = os.stat(f"{prefix}.pdf").st_size
     if filelen == 0:
-        return render_template("error.html", errortext=["You must select a PDF file."])
+        return render_template("index.html", errors=["Please select a PDF file to upload"], fields=fields)
     elif filelen < MINSIZE:
         return render_template(
-            "error.html", errortext=["The file seems too small to be a valid PDF file."]
+            "index.html", errors=["The file seems too small to be a valid PDF file"], fields=fields
         )
 
     with open(f"{prefix}.run", "w") as out:

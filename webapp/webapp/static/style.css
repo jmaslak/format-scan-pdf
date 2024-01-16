@@ -15,7 +15,16 @@ fieldset {
   background-color: #f4ebfe;
   padding-left: 1.5em;
   padding-right: 1.5em;
+}
+fieldset.radio {
   padding-bottom: 1.5em;
+}
+fieldset.file {
+  padding-bottom: 1.5em;
+}
+fieldset.error {
+  border-color: #ff0000;
+  background-color: #fdfdfd;
 }
 fieldset p {
   color: #404040;
@@ -29,8 +38,12 @@ legend {
   color: #110066;
   padding-top: .5em;
 }
-h1 {
-  font-size: 120%;
+fieldset.error legend {
+  color: #E00000;
+  padding-top: .5em;
+}
+fieldset.error li {
+  color: #600000;
 }
 .statushead {
   color: #110066;
@@ -53,12 +66,17 @@ h1 {
 }
 .input {
   margin-top: 1em;
-  margin-bottom: 1em;
   font-size: 110%;
 }
-.input label {
-  font-weight: bold;
-  color: #110066;
+input[type="file"] {
+  font-size: 100%;
+  font-weight: normal;
+  font-family: Helvetica, Sans-Serif;
+}
+input[type="file"]::file-selector-button {
+  border-color: #660066;
+  border-width: 1px;
+  border-radius: 5px;
 }
 .submit {
   margin: auto;
@@ -73,4 +91,5 @@ h1 {
   border-color: #660066;
   border-width: 3px;
   border-radius: 15px;
+  margin-top: 1em;
 }
